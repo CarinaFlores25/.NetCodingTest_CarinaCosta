@@ -41,8 +41,8 @@ namespace EmployeeTest
         {
             object data = new
             {
-                Nome = "Agent Name",
-                Email = "teste2",
+                Nome = "Func Icatu Name",
+                Email = "teste2@icatu.com.br",
                 Departamento = "TI"
             };
 
@@ -54,6 +54,34 @@ namespace EmployeeTest
             var response = await _testContext.Client.PostAsync("/api/employee", byteContent);
             response.EnsureSuccessStatusCode();
             response.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        }
+
+        [Fact]
+        public async Task Employee_Put_ValuesReturnsCreatedResponse()
+        {
+            object data = new
+            {
+                Nome = "Func Icatu Name",
+                Email = "teste2@icatu.com.br",
+                Departamento = "TI"
+            };
+
+            var myContent = JsonConvert.SerializeObject(data);
+            var buffer = System.Text.Encoding.UTF8.GetBytes(myContent);
+            var byteContent = new ByteArrayContent(buffer);
+            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+            var response = await _testContext.Client.PutAsync("/api/employee", byteContent);
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        }
+
+        [Fact]
+        public async Task Employee_GetAllFuncPagnination_ValuesReturnsPaginationResponse()
+        {
+            var response = await _testContext.Client.GetAsync("/api/employee/X/X");
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
         }
 

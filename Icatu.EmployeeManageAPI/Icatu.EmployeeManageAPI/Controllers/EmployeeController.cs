@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Icatu.EmployeeManageAPI.Models;
@@ -19,72 +20,87 @@ namespace Icatu.EmployeeManageAPI.Controllers
 
             if (_context.Employees.Count() == 0)
             {
-               _context.Employees.Add(new EmployeeItem { Nome = "Item1", Email = "teste", Departamento = "RH" });
-               _context.SaveChanges();
+                _context.Employees.Add(new EmployeeItem { Nome = "FuncIcatu", Email = "teste@icatu.com.br", Departamento = "RH" });
+                _context.SaveChanges();
             }
         }
 
         [HttpGet("{currentPage}/{pageSize}")]
-        public async Task<List<EmployeeItem>> GetTodoItems(int currentPage, int pageSize)
+        public async Task<List<EmployeeItem>> GetTodosFunc(int currentPage, int pageSize)
         {
             var data = await _context.Employees.ToListAsync();
             return data.OrderBy(d => d.ID).Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<EmployeeItem>> GetTodoItem(long id)
+        public async Task<ActionResult<EmployeeItem>> GetFunc(long id)
         {
-            var todoItem = await _context.Employees.FindAsync(id);
+            var funcId = await _context.Employees.FindAsync(id);
 
-            if (todoItem == null)
+            if (funcId == null)
             {
                 return NotFound();
             }
 
-            return todoItem;
+            return funcId;
         }
 
         [HttpPost]
-        public async Task<ActionResult<EmployeeItem>> PostTodoItem(EmployeeItem item)
+        public async Task<ActionResult<EmployeeItem>> PostTodoItem(EmployeeItem func)
         {
-            _context.Employees.Add(item);
+            _context.Employees.Add(func);
             await _context.SaveChangesAsync();
-            
-            return CreatedAtAction(nameof(GetTodoItem), new { id = item.ID }, item);
+
+            return CreatedAtAction(nameof(GetFunc), new { id = func.ID }, func);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTodoItem(long id)
+        public async Task<IActionResult> DeleteFunc(long id)
         {
-            var todoItem = await _context.Employees.FindAsync(id);
+            var funcId = await _context.Employees.FindAsync(id);
 
-            if (todoItem == null)
+            if (funcId == null)
             {
                 return NotFound();
             }
 
-            _context.Employees.Remove(todoItem);
+            _context.Employees.Remove(funcId);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
+        private bool EmployeeExist(long id)
+        {
+            return _context.Employees.Count(e => e.ID == id) > 0;
+        }
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTodoItem(long id, EmployeeItem item)
-        { 
-            if (id != item.ID)
+        public async Task<IActionResult> PutFunc(long id, EmployeeItem func)
+        {
+            if (id != func.ID)
             {
                 return BadRequest();
             }
 
-            _context.Entry(item).State = EntityState.Modified;
-            
-            await _context.SaveChangesAsync();
+            _context.Entry(func).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!EmployeeExist(func.ID))
+                {
+                    return NotFound();
+                }
+            }
 
             return NoContent();
         }
 
     }
-}  
+}
 
 
